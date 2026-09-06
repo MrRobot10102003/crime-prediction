@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrimeVision AI — Crime Rate Prediction</title>
+    <meta name="description" content="AI-powered crime rate prediction for Indian metropolitan cities using Random Forest Regression. Predict crime trends across 19 cities and 10 crime categories.">
+    <link rel="icon" href="static/images/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/styles.css">
+    
+    <!-- Leaflet.js Mapping Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+
+    <!-- ═══════════════════ NAVBAR ═══════════════════ -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="cyan" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L3 7v6c0 5.25 3.75 10.15 9 11.25C17.25 23.15 21 18.25 21 13V7l-9-5z"/>
+            </svg>
+            <span>CrimeVision</span>
+        </div>
+        <div class="nav-links">
+            <a href="#predict">Predict</a>
+            <a href="#about">About</a>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════ HERO ═══════════════════ -->
+    <section class="hero">
+        <div class="hero-particles" id="hero-particles"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🔬 AI-Powered Analysis</div>
+            <h1>Predict Crime Rates<br><span class="gradient-text">Across India</span></h1>
+            <p class="hero-subtitle">Leveraging machine learning to forecast crime trends across 19 metropolitan cities. Make data-driven decisions for a safer tomorrow.</p>
+            <a href="#predict" class="btn-cta">Start Prediction →</a>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ PREDICTION FORM & MAP ═══════════════════ -->
+    <section id="predict" class="predict-section">
+        <h2 class="section-title"><span class="gradient-text">Make a Prediction</span></h2>
+
+        <div class="predict-container">
+            <div class="form-card">
+                <form id="prediction-form" action="/predict" method="POST">
+
+                    <!-- City -->
+                    <div class="form-group">
+                        <label for="city-dropdown">City</label>
+                        <select id="city-dropdown" name="city" required>
+                            <option value="0">Ahmedabad</option>
+                            <option value="1">Bengaluru</option>
+                            <option value="2">Chennai</option>
+                            <option value="3">Coimbatore</option>
+                            <option value="4">Delhi</option>
+                            <option value="5">Ghaziabad</option>
+                            <option value="6">Hyderabad</option>
+                            <option value="7">Indore</option>
+                            <option value="8">Jaipur</option>
+                            <option value="9">Kanpur</option>
+                            <option value="10">Kochi</option>
+                            <option value="11">Kolkata</option>
+                            <option value="12">Kozhikode</option>
+                            <option value="13">Lucknow</option>
+                            <option value="14">Mumbai</option>
+                            <option value="15">Nagpur</option>
+                            <option value="16">Patna</option>
+                            <option value="17">Pune</option>
+                            <option value="18">Surat</option>
+                        </select>
+                    </div>
+
+                    <!-- Crime Category -->
+                    <div class="form-group">
+                        <label for="crime-dropdown">Crime Category</label>
+                        <select id="crime-dropdown" name="crime" required>
+                            <option value="0">Crime Committed by Juveniles</option>
+                            <option value="1">Crime against SC</option>
+                            <option value="2">Crime against ST</option>
+                            <option value="3">Crime against Senior Citizen</option>
+                            <option value="4">Crime against children</option>
+                            <option value="5">Crime against women</option>
+                            <option value="6">Cyber Crimes</option>
+                            <option value="7">Economic Offences</option>
+                            <option value="8">Kidnapping</option>
+                            <option value="9">Murder</option>
+                        </select>
+                    </div>
+
+                    <!-- Year -->
+                    <div class="form-group">
+                        <label for="year">Year</label>
+                        <select id="year" name="year" required>
+                            <!-- Populated dynamically by main.js -->
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-predict">Predict Crime Rate →</button>
+                </form>
+            </div>
+
+            <div class="map-card">
+                <div class="map-info">
+                    <h3>📍 Interactive India Map</h3>
+                    <p>Click on any marker to select that city automatically</p>
+                </div>
+                <div id="map"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ ABOUT ═══════════════════ -->
+    <section id="about" class="about-section">
+        <h2 class="section-title"><span class="gradient-text">About CrimeVision</span></h2>
+
+        <div class="about-content">
+            <p>Crime prediction is a vital tool in modern law enforcement and urban planning. By analyzing historical patterns and leveraging advanced machine learning techniques, we can anticipate crime trends and empower communities and authorities to take proactive measures for public safety.</p>
+            <p>CrimeVision AI is built on a comprehensive dataset sourced from the National Crime Records Bureau (NCRB). It covers <strong>19 major Indian metropolitan cities</strong> with data spanning from <strong>2014 to 2021</strong>, encompassing <strong>10 distinct crime categories</strong> — from cyber crimes and economic offences to crimes against women and senior citizens.</p>
+            <p>Our prediction engine uses a <strong>Random Forest Regression</strong> model trained on this rich dataset, achieving an impressive accuracy of <strong>93.20%</strong>. The model considers city-specific patterns, crime category trends, and temporal dynamics to deliver reliable forecasts that can guide policy and resource allocation.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">19 Cities</div>
+                <div class="feature-desc">Major Indian metropolitan cities covered</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">93.2% Accuracy</div>
+                <div class="feature-desc">Random Forest Regression model</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <div class="feature-title">10 Categories</div>
+                <div class="feature-desc">Different crime types analyzed</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ FOOTER ═══════════════════ -->
+    <footer class="footer">
+        <p>Built with ML &amp; Flask — CrimeVision AI</p>
+    </footer>
+
+    <script src="static/main.js"></script>
+</body>
+</html>

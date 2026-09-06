@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results — CrimeVision AI</title>
+    <meta name="description" content="AI-powered crime rate prediction for Indian metropolitan cities using Random Forest Regression. Predict crime trends across 19 cities and 10 crime categories.">
+    <link rel="icon" href="static/images/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/styles.css">
+    
+    <!-- Leaflet.js Mapping Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Chart.js Visualization Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- ═══════════════════ NAVBAR ═══════════════════ -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="cyan" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L3 7v6c0 5.25 3.75 10.15 9 11.25C17.25 23.15 21 18.25 21 13V7l-9-5z"/>
+            </svg>
+            <span>CrimeVision</span>
+        </div>
+        <div class="nav-links">
+            <a href="/">Predict</a>
+            <a href="/#about">About</a>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════ RESULTS DASHBOARD ═══════════════════ -->
+    <div class="results-container">
+        <div class="results-dashboard">
+            
+            <!-- Left Side: Result Card & Safety Info -->
+            <div class="dashboard-left">
+                <div class="result-card">
+                    <!-- Header -->
+                    <div class="result-header">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="cyan" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
+                            <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
+                            <path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"/>
+                        </svg>
+                        <h2><span class="gradient-text">Prediction Results</span></h2>
+                        <p class="result-subtitle">Analysis complete for your selected parameters</p>
+                    </div>
+
+                    <!-- Input Parameters Grid -->
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">City</div>
+                            <div class="result-value">{{city_name}}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Crime Type</div>
+                            <div class="result-value">{{crime_type}}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Year</div>
+                            <div class="result-value">{{year}}</div>
+                        </div>
+                    </div>
+
+                    <!-- Status Banner -->
+                    {% if crime_status == 'Very Low Crime Area' %}
+                    <div class="prediction-banner status-very-low">
+                        <div class="status-icon">🟢</div>
+                        <div class="status-text">{{crime_status}}</div>
+                    </div>
+                    {% elif crime_status == 'Low Crime Area' %}
+                    <div class="prediction-banner status-low">
+                        <div class="status-icon">🔵</div>
+                        <div class="status-text">{{crime_status}}</div>
+                    </div>
+                    {% elif crime_status == 'High Crime Area' %}
+                    <div class="prediction-banner status-high">
+                        <div class="status-icon">🟠</div>
+                        <div class="status-text">{{crime_status}}</div>
+                    </div>
+                    {% else %}
+                    <div class="prediction-banner status-very-high">
+                        <div class="status-icon">🔴</div>
+                        <div class="status-text">{{crime_status}}</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Safety Index & Recommendations Section -->
+                    <div class="safety-card">
+                        <div class="safety-gauge-container">
+                            <div class="safety-gauge">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="gauge-fill" cx="60" cy="60" r="50" style="stroke-dashoffset: calc(314.16 - (314.16 * {{safety_index}}) / 100);"></circle>
+                                </svg>
+                                <div class="gauge-text">
+                                    <span class="stat-value" data-value="{{safety_index}}">{{safety_index}}</span>
+                                    <span class="gauge-percent">%</span>
+                                    <span class="gauge-label">Safety Index</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="recommendations-box">
+                            <h4>💡 Safety Recommendation</h4>
+                            <p>{{recommendation}}</p>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" data-value="{{crime_rate}}">{{crime_rate}}</div>
+                            <div class="stat-label">Crime Rate</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" data-value="{{cases}}">{{cases}}</div>
+                            <div class="stat-label">Est. Cases</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" data-value="{{population}}">{{population}}</div>
+                            <div class="stat-label">Population (Lakhs)</div>
+                        </div>
+                    </div>
+
+                    <!-- Back Link -->
+                    <a href="/" class="btn-back">← New Prediction</a>
+                </div>
+            </div>
+            
+            <!-- Right Side: Geospatial Map & Trend Charts -->
+            <div class="dashboard-right">
+                <!-- Leaflet City Map -->
+                <div class="map-card-result">
+                    <h3>📍 Location Mapping</h3>
+                    <div id="result-map" data-city-code="{{city_code}}" data-city-name="{{city_name}}" data-status="{{crime_status}}"></div>
+                </div>
+
+                <!-- Chart.js Trend Graph -->
+                <div class="chart-card">
+                    <h3>📊 Historical vs Forecasted Trends</h3>
+                    <p class="chart-subtitle">Split view: solid line (2014-2021 actual dataset) / dashed line (2022+ model predictions)</p>
+                    <div class="chart-container">
+                        <canvas id="trendsChart" data-trends='{{trend_data_json|safe}}' data-year="{{year}}"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ═══════════════════ FOOTER ═══════════════════ -->
+    <footer class="footer">
+        <p>Built with ML &amp; Flask — CrimeVision AI</p>
+    </footer>
+
+    <script src="static/main.js"></script>
+</body>
+</html>
